@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PiyushDev | Snake Game</title>
+    <style>
+        * {
+            margin: 0;
+            box-sizing: border-box;
+            padding: 0;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6,
+        a,
+        p,
+        span {
+            padding-bottom: 0.714em !important;
+            padding-top: 0.714em !important;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            font-weight: 400;
+            color: #ffffff;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        footer {
+            bottom: 0;
+            right: 0;
+            left: 0;
+            margin: 0 auto;
+            position: fixed;
+            width: 100%;
+            background: #1E1E24;
+            text-align: center;
+        }
+
+        footer .content {
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: row;
+            flex-wrap: wrap;
+            justify-content: space-evenly;
+            height: 80px;
+        }
+
+        footer .content .bottom {
+            padding: 0;
+            margin: 0;
+            top: 10%;
+        }
+
+        footer .content .bottom .beat {
+            color: red;
+            -webkit-animation: beat 0.3s infinite alternate;
+            animation: beat 0.3s infinite alternate;
+        }
+
+        footer .content .top {
+            font-size: 25px;
+        }
+
+        footer .content .top .fa-twitter:hover {
+            transition: 350ms ease-in-out;
+            color: #55acee;
+            transform: scale(1.4);
+        }
+
+        footer .content .top .fa-youtube:hover {
+            transition: 350ms ease-in-out;
+            color: #cd201f;
+            transform: scale(1.4);
+        }
+
+        footer .content .top .fa-instagram:hover {
+            transition: 350ms ease-in-out;
+            color: #e4405f;
+            transform: scale(1.4);
+        }
+
+        footer .content .top .fa-codepen:hover {
+            transition: 350ms ease-in-out;
+            color: #FFDD40;
+            transform: scale(1.4);
+        }
+
+        footer .content .top a {
+            padding: 10px;
+        }
+
+        footer .content .top i {
+            transition: 500ms ease-in-out;
+        }
+
+        body {
+            background: #1E1E24;
+            font-family: "Raleway", sans-serif;
+            text-align: center;
+        }
+
+        .noselect {
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+
+        canvas {
+            position: absolute;
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            border: solid 5px #FB9F89;
+        }
+
+        @-webkit-keyframes beat {
+            to {
+                transform: scale(1.4);
+            }
+        }
+
+        @keyframes beat {
+            to {
+                transform: scale(1.4);
+            }
+        }
+
+        .artboard {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: row;
+            flex-wrap: wrap;
+            position: absolute;
+        }
+
+        .artboard .display {
+            display: flex;
+            position: absolute;
+            top: 0;
+        }
+
+        .artboard .display h3 {
+            padding-left: 10px;
+        }
+    </style>
+</head>
+
+
+<body>
+
+    <div class="artboard">
+        <div class="display">
+            <h3>score: 0</h3>
+            <h3>highscore: 0</h3>
+            <h3>attempt: 0</h3>
+            <h3>Level:0</h3>
+        </div>
+        <canvas onClick="return true"></canvas>
+    </div>
+
+    <script>
+        var canvas = document.querySelector('canvas');
+        var ah = 100
+        var aw = 50
+        canvas.width = window.innerWidth - aw;
+        canvas.height = window.innerHeight - ah;
+        var display = document.getElementsByTagName('h3');
+        var ctx = canvas.getContext('2d');
+        var grid = 16;
+        var count = 0;
+        var score = 0;
+        var level = 4;
+        var levelC = 0;
+        var attempt = 0;
+        var highScore = 0;
+        var snake = {
+            x: 160,
+            y: 160,
+            dx: grid,
+            dy: 0,
+            cells: [],
+            maxCells: 4
+        };
+        var apple = {
+            x: 320,
+            y: 320
+        };
+
+
+
+        function getRandomInt(min, max) {
+            return Math.floor(Math.random() * (max - min)) + min;
+        }
+        function startGame() {
+
+            requestAnimationFrame(startGame);
+            if (++count < level) {
+                return;
+            }
+            count = 0;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            snake.x += snake.dx;
+            snake.y += snake.dy;
+
+            snake.cells.unshift({ x: snake.x, y: snake.y });
+            if (snake.cells.length > snake.maxCells) {
+                snake.cells.pop();
+
+            }
+
+            ctx.fillStyle = '#21A179';
+            ctx.fillRect(apple.x, apple.y, grid - 1, grid - 1);
+
+            ctx.fillStyle = '#FB9F89';
+
+            snake.cells.forEach(function (cell, index) {
+
+
+                ctx.fillRect(cell.x, cell.y, grid - 1, grid - 1);
+
+                if (cell.x === apple.x && cell.y === apple.y) {
+                    snake.maxCells++;
+                    score = score + 5;
+                    level = level - 0.10;
+                    levelC++;
+                    apple.x = getRandomInt(0, (canvas.width / 25)) * grid;
+                    apple.y = getRandomInt(0, (canvas.height / 25)) * grid;
+                    display[0].innerHTML = ("Score:" + score);
+                    display[3].innerHTML = ("Level:" + levelC);
+
+                }
+                for (var i = index + 1; i < snake.cells.length; i++) {
+
+                    if (snake.x < 0 || snake.x >= canvas.width || snake.y < 0 || snake.y >= canvas.height || cell.x === snake.cells[i].x && cell.y === snake.cells[i].y) {
+                        reset();
+                        init();
+                    }
+
+                }
+
+            });
+
+        }
+
+        document.addEventListener('keydown', function (e) {
+            //left and a  
+            if (e.which === 37 || e.which === 65) {
+                if (snake.dx === 0) {
+                    snake.dx = -grid;
+                    snake.dy = 0;
+                }
+            }
+            //up and w 
+            else if (e.which === 38 || e.which === 87) {
+                if (snake.dy === 0) {
+                    snake.dy = -grid;
+                    snake.dx = 0;
+                }
+            }
+            //right and d
+            else if (e.which === 39 || e.which === 68) {
+                if (snake.dx === 0) {
+                    snake.dx = grid;
+                    snake.dy = 0;
+                }
+            }
+            // down and s
+            else if (e.which === 40 || e.which === 83 && snake.dy === 0) {
+                if (snake.dy === 0) {
+                    snake.dy = grid;
+                    snake.dx = 0;
+                }
+            }
+        });
+        function reset() {
+
+            //  console.log("in reset")
+            snake.x = 160;
+            snake.y = 160;
+            snake.cells = [];
+            snake.maxCells = 4;
+            snake.dx = grid;
+            snake.dy = 0;
+            apple.x = getRandomInt(0, 25) * grid;
+            apple.y = getRandomInt(0, 25) * grid;
+            //console.log("Game Over")
+            if (score >= highScore || highScore == '') {
+                highScore = score
+            }
+            attempt++
+            //console.log(highScore)
+            score = 0;
+            level = 5;
+            levelC = 0;
+            display[0].innerHTML = ("Score:" + score);
+            display[3].innerHTML = ("Level:" + levelC);
+            display[1].innerHTML = ("highScore:" + highScore);
+            display[2].innerHTML = ("attempt:" + attempt);
+            //console.log("Calling reset")
+        }
+        function init() {
+            //console.log("in init")
+            let temp = ctx.getImageData(0, 0, canvas.width, canvas.height)
+            canvas.width = window.innerWidth - aw;
+            canvas.height = window.innerHeight - ah;
+            ctx.putImageData(temp, 0, 0)
+
+        }
+
+
+        //window.addEventListener('resize', init);
+
+
+        // Touch Test
+        let pageWidth = window.innerWidth || document.body.clientWidth;
+        let treshold = Math.max(1, Math.floor(0.01 * (pageWidth)));
+        let touchstartX = 0;
+        let touchstartY = 0;
+        let touchendX = 0;
+        let touchendY = 0;
+
+        const limit = Math.tan(45 * 1.5 / 180 * Math.PI);
+        //const gestureZone = document.getElementById('modalContent');
+
+        canvas.addEventListener('touchstart', function (event) {
+            event.preventDefault()
+            touchstartX = event.changedTouches[0].screenX;
+            touchstartY = event.changedTouches[0].screenY;
+        }, false);
+
+        canvas.addEventListener('touchend', function (event) {
+            event.preventDefault()
+            touchendX = event.changedTouches[0].screenX;
+            touchendY = event.changedTouches[0].screenY;
+            handleGesture(event);
+        }, false);
+
+        function handleGesture(e) {
+            let x = touchendX - touchstartX;
+            let y = touchendY - touchstartY;
+            let xy = Math.abs(x / y);
+            let yx = Math.abs(y / x);
+            if (Math.abs(x) > treshold || Math.abs(y) > treshold || snake.dx === 0) {
+                if (yx <= limit) {
+                    if (x < 0) {
+                        console.log("left");
+                        if (snake.dx === 0) {
+                            snake.dx = -grid;
+                            snake.dy = 0;
+                        };
+                    } else {
+                        console.log("right");
+                        if (snake.dx === 0) {
+                            snake.dx = grid;
+                            snake.dy = 0;
+                        }
+                    }
+                }
+                if (xy <= limit) {
+                    if (y < 0) {
+                        console.log("top");
+                        if (snake.dy === 0) {
+
+                            snake.dy = -grid;
+                            snake.dx = 0;
+                        }
+                    } else {
+
+                        console.log("bottom");
+                        if (snake.dy === 0) {
+                            snake.dy = grid;
+                            snake.dx = 0;
+                        }
+                    }
+                }
+            } else {
+                console.log("tap");
+            }
+        }
+
+
+        //Instruction
+        function check() {
+            //if(window.innerHeight > window.innerWidth){
+            //   alert("Please use Landscape! Mode");
+            //}
+            // else {
+
+            init()
+
+
+            //init()
+            //}
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            alert("Controls:\n[ W S A D / UP, DOWN, LEFT, RIGHT]\n[Swipe UP, Swipe Down, Swipe Left, Swipe Right]\nAnd Please Rotate your device in Landscape mode for better viewing.");
+
+            check();
+            requestAnimationFrame(startGame);
+
+
+        }, false);
+
+
+        //if (window.DeviceOrientationEvent) {
+        //    window.addEventListener('orientationchange', function() { check(); }, false);
+        //}
+
+        window.onresize = function (event) {
+            check();
+        }
+        //requestAnimationFrame(startGame)
+        requestAnimationFrame(startGame);
+    </script>
+</body>
+
+</html>
